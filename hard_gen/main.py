@@ -181,17 +181,17 @@ def main() -> None:
 
     
     def _save_epoch(epoch):
-        logger.info("saving model...")
+        logger.info("saving model... {}".format(output_dir/f"checkpoint{epoch}.pt"))
         torch.save(model.state_dict(), output_dir/f"checkpoint{epoch}.pt")
         logger.info("done!")
 
     def _save_emotion(ckpt_str):
-        logger.info("saving emotion model...")
+        logger.info("saving emotion model... {}".format( output_dir/f"emotion/best_{ckpt_str}.pt"))
         torch.save(emotion_net.state_dict(), output_dir/f"emotion/best_{ckpt_str}.pt")
         logger.info("done!")
 
     def _save_generation(epoch):
-        logger.info("saving generation  model...")
+        logger.info("saving generation  model... ".format(output_dir/f"generation/checkpoint{epoch}.pt"))
         torch.save(generate_net.state_dict(), output_dir/f"generation/checkpoint{epoch}.pt")
         logger.info("done!")
 
