@@ -1,3 +1,4 @@
+pip install -r ../requirements.txt
 
 wget https://nlp.stanford.edu/data/glove.6B.zip
 unzip -o glove.6B.zip
