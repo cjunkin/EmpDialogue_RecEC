@@ -1,14 +1,19 @@
-# pip install -r EmpDialogue_RecEC/requirements.txt
+echo "Installing dependencies..."
+pip install -r EmpDialogue_RecEC/requirements.txt
 
-# wget https://nlp.stanford.edu/data/glove.6B.zip
-# mv glove.6B.zip glove.6B.zip
-# unzip -o glove.6B.zip
+echo "Get GLoVE embeddings..."
+wget https://nlp.stanford.edu/data/glove.6B.zip
+mv glove.6B.zip glove.6B.zip
+unzip -o glove.6B.zip
 
+echo "Create directories..."
 mkdir EmpDialogue_RecEC/outputs
 mkdir EmpDialogue_RecEC/outputs/emotion
 
-# wget https://raw.githubusercontent.com/Tiiiger/bert_score/master/bert_score/rescale_baseline/en/roberta-large.tsv baseline.tsv
+echo "Get baseline files..."
+wget https://raw.githubusercontent.com/Tiiiger/bert_score/master/bert_score/rescale_baseline/en/roberta-large.tsv baseline.tsv
 
+echo "Move files..."
 current_dir=$(basename "$PWD")
 
 if [ "$current_dir" == "content" ]; then
