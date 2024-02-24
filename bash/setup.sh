@@ -3,7 +3,7 @@ pip install -r EmpDialogue_RecEC/requirements.txt
 
 echo "Get GLoVE embeddings..."
 wget https://nlp.stanford.edu/data/glove.6B.zip
-mv glove.6B.zip glove.6B.zip
+# mv glove.6B.zip glove.6B.zip
 unzip -o glove.6B.zip
 
 echo "Create directories..."
