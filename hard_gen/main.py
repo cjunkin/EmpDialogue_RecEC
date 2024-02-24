@@ -381,6 +381,9 @@ def main() -> None:
                 best_F1 = F1
                 _save_generation("_best")
                 _save_epoch("_best")
+            else:
+                _save_generation("_other")
+                _save_epoch("_other")
 
 
     if args.do_test:
