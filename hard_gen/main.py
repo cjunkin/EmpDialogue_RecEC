@@ -382,7 +382,7 @@ def main() -> None:
                 best_F1 = F1
                 _save_generation("_best")
                 _save_epoch("_best")
-            else if F1 > best_F1_other:
+            elif F1 > best_F1_other:
                 best_F1_other = F1
                 _save_generation("_other")
                 _save_epoch("_other")
