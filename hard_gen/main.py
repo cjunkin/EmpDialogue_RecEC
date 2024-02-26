@@ -191,7 +191,7 @@ def main() -> None:
         logger.info("done!")
 
     def _save_generation(epoch):
-        logger.info("saving generation  model... ".format(output_dir/f"generation/checkpoint{epoch}.pt"))
+        logger.info("saving generation  model... {}".format(output_dir/f"generation/checkpoint{epoch}.pt"))
         torch.save(generate_net.state_dict(), output_dir/f"generation/checkpoint{epoch}.pt")
         logger.info("done!")
 
@@ -377,11 +377,13 @@ def main() -> None:
             _eval_epoch()
             F1, dist2, bleu4 = _test_epoch(epoch)
             best_F1 = 0
+            best_F1_other = 0
             if F1 > 0.13 and dist2 > 0.08 and bleu4 > 0.016 and F1 > best_F1:
                 best_F1 = F1
                 _save_generation("_best")
                 _save_epoch("_best")
-            else:
+            else if F1 > best_F1_other:
+                best_F1_other = F1
                 _save_generation("_other")
                 _save_epoch("_other")
 
