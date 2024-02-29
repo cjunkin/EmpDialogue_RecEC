@@ -95,24 +95,24 @@ init_logger(output_dir/args.log_file)
 class ModelWrapper(nn.Module):
     def __init__(self, generate_net: Transformer, emotion_net: EmotionNet, beam_width: int):
         super().__init__()
-        self.generate_net = generate_net
-        self.emotion_net = emotion_net
+        self.generate_net = generate_net.to(device)
+        self.emotion_net = emotion_net.to(device)
         self.beam_width = beam_width
         
 
     def forward(self,  # type: ignore
                 batch: tx.data.Batch) -> Dict[str, torch.Tensor]:
-        emotion_return_dict, emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids,
-                                                                           emotion_label=batch.emotion_id,
-                                                                           cause_labels=batch.cause_ids)
+        emotion_return_dict, emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids.to(device),
+                                                                           emotion_label=batch.emotion_id.to(device),
+                                                                           cause_labels=batch.cause_ids.to(device))
 
-        return_dict = self.generate_net(encoder_input=batch.src_text_ids,
+        return_dict = self.generate_net(encoder_input=batch.src_text_ids.to(device),
                           emotion_preds=emotion_preds,
-                          decoder_input=batch.tgt_text_ids[:,:-1].contiguous(),
-                          labels=batch.tgt_text_ids[:,1:].contiguous(),
-                          emotion_label=batch.emotion_id,
+                          decoder_input=batch.tgt_text_ids[:,:-1].contiguous().to(device),
+                          labels=batch.tgt_text_ids[:,1:].contiguous().to(device),
+                          emotion_label=batch.emotion_id.to(device),
                           cause_labels=cause_preds,
-                          user_ids=batch.user_ids)
+                          user_ids=batch.user_ids.to(device))
 
 
         return_dict.update(emotion_return_dict)
@@ -126,13 +126,13 @@ class ModelWrapper(nn.Module):
         return return_dict, emotion_preds
 
     def predict(self, batch: tx.data.Batch) -> Dict[str, torch.Tensor]:
-        emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids)
+        emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids.to(device))
 
-        predictions = self.generate_net(encoder_input=batch.src_text_ids,
+        predictions = self.generate_net(encoder_input=batch.src_text_ids.to(device),
                           emotion_preds=emotion_preds,
-                          emotion_label=batch.emotion_id,
+                          emotion_label=batch.emotion_id.to(device),
                           cause_labels=cause_preds,
-                          user_ids=batch.user_ids)
+                          user_ids=batch.user_ids.to(device))
 
         decoded_ids = predictions[0].sample_id
         hypos = self.generate_net.vocab.map_ids_to_tokens_py(decoded_ids.cpu()).tolist()
@@ -157,9 +157,9 @@ def main() -> None:
     emotion_vocab = EmotionVocab(config_data.emotion_file)
     logger.info(f"Vocab size: {vocab.size}")
     logger.info(f"EmotionVocab Size: {emotion_vocab.size}")
-    train_data = data_utils.TrainData(config_data.train_hparams,device=device)
-    valid_data = data_utils.TrainData(config_data.valid_hparams,device=device)
-    test_data = data_utils.TrainData(config_data.test_hparams,device=device)
+    train_data = data_utils.TrainData(config_data.train_hparams, device=device)
+    valid_data = data_utils.TrainData(config_data.valid_hparams, device=device)
+    test_data = data_utils.TrainData(config_data.test_hparams, device=device)
     logger.info(f"Training data size: {len(train_data)}")
     logger.info(f"Valid data size: {len(valid_data)}")
     logger.info(f"Test data size: {len(test_data)}")
@@ -170,14 +170,14 @@ def main() -> None:
     test_data_iterator = tx.data.DataIterator(test_data)
 
     # Create model and optimizer
-    generate_net = Transformer(config_model, config_data, vocab, emotion_vocab)
-    emotion_net = EmotionNet(config_model, config_data, vocab, emotion_vocab)
+    generate_net = Transformer(config_model, config_data, vocab, emotion_vocab).to(device)
+    emotion_net = EmotionNet(config_model, config_data, vocab, emotion_vocab).to(device)
     if args.emotion_model is not None:
         emotion_net.load_state_dict(torch.load(args.emotion_model, map_location=device))
         logger.info("loading emotion model...")
     emotion_net.eval()
-    model = ModelWrapper(generate_net, emotion_net, config_model.beam_width)
-    model.to(device)
+    model = ModelWrapper(generate_net, emotion_net, config_model.beam_width).to(device)
+    
     # For training
     lr_config = config_model.lr_config
     if lr_config["learning_rate_schedule"] == "static":
@@ -313,8 +313,7 @@ def main() -> None:
             emotion_net2.load_state_dict(torch.load(args.emotion_model, map_location=device))
             logger.info("loading emotion model...")
         emotion_net2.eval()
-        model2 = ModelWrapper(generate_net2, emotion_net2, config_model.beam_width)
-        model2.to(device)
+        model2 = ModelWrapper(generate_net2, emotion_net2, config_model.beam_width).to(device)
 
         model.load_state_dict(torch.load(args.checkpoint, map_location=device))
         model2.load_state_dict(torch.load("./", map_location=device))
