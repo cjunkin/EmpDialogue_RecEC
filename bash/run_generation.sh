@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]];do
   esac
 done
 
-WORK_DIR=$(cd $(dirname $0)); pwd)
+WORK_DIR=$(cd $(dirname $0); pwd)
 if [ "${MODE}" == "soft" ]; then
     OUT_DIR=${WORK_DIR}/outputs/soft_gen
     mkdir -p ${OUT_DIR}
