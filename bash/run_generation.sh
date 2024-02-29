@@ -62,10 +62,10 @@ if [ ${FLAG_train} -eq 1 ]; then
     CUDA_VISIBLE_DEVICES=${GPU} python main.py \
         --do-train \
         --do-eval \
-        --glove ${GLOVE} \
+        --glove "../${GLOVE}" \
         --emotion-model ../outputs/emotion/best_emotion.pt \
-        --bert-score-baseline ${BASELINE} \
-        --bert-score-model ${ROBERTA_DIR} \
+        --bert-score-baseline "../${BASELINE}" \
+        --bert-score-model "../${ROBERTA_DIR}" \
         --output-dir ${OUT_DIR}
 fi
 
