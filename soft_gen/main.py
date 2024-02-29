@@ -41,7 +41,7 @@ parser.add_argument(
     "--do-test", action="store_true",
     help="Whether to run test on the test set.")
 parser.add_argument(
-    "--output-dir", type=str, default="./outputs/",
+    "--output-dir", type=str, default="../outputs/soft_gen",
     help="Path to save the trained model and logs.")
 parser.add_argument(
     "--log-file", type=str, default="exp.log",
@@ -69,16 +69,25 @@ config_model: Any = importlib.import_module(args.config_model)
 config_data: Any = importlib.import_module(args.config_data)
 config_data.glove_file = args.glove
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Device configuration
+USE_GPU = True
+if USE_GPU and torch.cuda.is_available():
+    device = torch.device('cuda')
+elif USE_GPU and torch.backends.mps.is_available():
+    device = torch.device('mps')
+else:
+    device = torch.device('cpu')
+print(f"USING {device}")
 
 make_deterministic(config_model.random_seed)
 
 
 scorer = BERTScorer(lang="en",num_layers=17, rescale_with_baseline=True, model_type=args.bert_score_model, 
                     baseline_path=args.bert_score_baseline)
+
+# Valid output directory check
 output_dir = Path(args.output_dir)
 tx.utils.maybe_create_dir(output_dir)
-# tx.utils.maybe_create_dir(output_dir/"emotion")
 tx.utils.maybe_create_dir(output_dir/"generation")
 
 init_logger(output_dir/args.log_file)
@@ -164,7 +173,7 @@ def main() -> None:
     generate_net = Transformer(config_model, config_data, vocab, emotion_vocab)
     emotion_net = EmotionNet(config_model, config_data, vocab, emotion_vocab)
     if args.emotion_model is not None:
-        emotion_net.load_state_dict(torch.load(args.emotion_model))
+        emotion_net.load_state_dict(torch.load(args.emotion_model, map_location=device))
         logger.info("loading emotion model...")
     emotion_net.eval()
     model = ModelWrapper(generate_net, emotion_net, config_model.beam_width)
@@ -301,14 +310,14 @@ def main() -> None:
         generate_net2 = Transformer(config_model, config_data, vocab, emotion_vocab)
         emotion_net2 = EmotionNet(config_model, config_data, vocab, emotion_vocab)
         if args.emotion_model is not None:
-            emotion_net2.load_state_dict(torch.load(args.emotion_model))
+            emotion_net2.load_state_dict(torch.load(args.emotion_model, map_location=device))
             logger.info("loading emotion model...")
         emotion_net2.eval()
         model2 = ModelWrapper(generate_net2, emotion_net2, config_model.beam_width)
         model2.to(device)
 
-        model.load_state_dict(torch.load(args.checkpoint))
-        model2.load_state_dict(torch.load("./"))
+        model.load_state_dict(torch.load(args.checkpoint, map_location=device))
+        model2.load_state_dict(torch.load("./", map_location=device))
         model.eval()
         model2.eval()
         sample_id = 0
@@ -359,7 +368,7 @@ def main() -> None:
 
     @torch.no_grad()
     def _test_model():
-        model.load_state_dict(torch.load(args.checkpoint))
+        model.load_state_dict(torch.load(args.checkpoint, map_location=device))
         model.to(device)
         model.eval()
 

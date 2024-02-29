@@ -35,7 +35,7 @@ parser.add_argument(
     "--do-test", action="store_true",
     help="Whether to run test on the test set.")
 parser.add_argument(
-    "--output-dir", type=str, default="./outputs/",
+    "--output-dir", type=str, default="../outputs/",
     help="Path to save the trained model and logs.")
 parser.add_argument(
     "--log-file", type=str, default="exp.log",
@@ -59,9 +59,8 @@ make_deterministic(config_model.random_seed)
 output_dir = Path(args.output_dir)
 tx.utils.maybe_create_dir(output_dir)
 tx.utils.maybe_create_dir(output_dir/"emotion")
-# tx.utils.maybe_create_dir(output_dir/"generation")
 
-init_logger(output_dir/args.log_file)
+init_logger(output_dir/"emotion"/args.log_file)
 
 class ModelWrapper(nn.Module):
     def __init__(self, generate_net: Transformer, emotion_net: EmotionNet, beam_width: int):

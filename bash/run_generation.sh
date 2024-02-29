@@ -55,30 +55,31 @@ else
     WORK_DIR="${WORK_DIR}/hard_gen"   
 fi
 cd "${WORK_DIR}"
+pwd
 
 
 if [ ${FLAG_train} -eq 1 ]; then
-    echo "begin train"
+    echo "begin training"
     CUDA_VISIBLE_DEVICES=${GPU} python main.py \
         --do-train \
         --do-eval \
-        --glove "../${GLOVE}" \
-        --emotion-model ../outputs/emotion/best_emotion.pt \
-        --bert-score-baseline "../${BASELINE}" \
+        --glove "../../${GLOVE}" \
+        --emotion-model "../outputs/emotion/best_emotion.pt" \
+        --bert-score-baseline "../../${BASELINE}" \
         --bert-score-model ${ROBERTA_DIR} \
         --output-dir "${OUT_DIR}"
 fi
 
 if [ ${FLAG_test} -eq 1 ]; then
-    echo "begin test"
+    echo "begin testing"
     CUDA_VISIBLE_DEVICES=${GPU} python main.py \
         --do-test \
-        --glove ${GLOVE} \
-        --emotion-model ../outputs/emotion/best_emotion.pt \
-        --checkpoint ${OUT_DIR}/checkpoint_best.pt \
-        --bert-score-baseline ${BASELINE} \
+        --glove "../../${GLOVE}" \
+        --emotion-model "../outputs/emotion/best_emotion.pt" \
+        --checkpoint "${OUT_DIR}/checkpoint_best.pt" \
+        --bert-score-baseline "../../${BASELINE}" \
         --bert-score-model ${ROBERTA_DIR} \
-        --output-dir ${OUT_DIR} \
+        --output-dir "${OUT_DIR}" \
         --log-file result.txt
 fi
 
