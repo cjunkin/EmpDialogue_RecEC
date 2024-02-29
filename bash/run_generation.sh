@@ -66,7 +66,7 @@ if [ ${FLAG_train} -eq 1 ]; then
         --emotion-model ../outputs/emotion/best_emotion.pt \
         --bert-score-baseline "../${BASELINE}" \
         --bert-score-model "../${ROBERTA_DIR}" \
-        --output-dir ${OUT_DIR}
+        --output-dir "${OUT_DIR}"
 fi
 
 if [ ${FLAG_test} -eq 1 ]; then
