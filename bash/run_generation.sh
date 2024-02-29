@@ -46,15 +46,15 @@ done
 
 WORK_DIR=$(cd $(dirname $(dirname $0)); pwd)
 if [ "${MODE}" == "soft" ]; then
-    OUT_DIR=${WORK_DIR}/outputs/soft_gen
-    mkdir -p ${OUT_DIR}
-    WORK_DIR=${WORK_DIR}/soft_gen
+    OUT_DIR="${WORK_DIR}/outputs/soft_gen"
+    mkdir -p "${OUT_DIR}"
+    WORK_DIR="${WORK_DIR}/soft_gen"
 else
-    OUT_DIR=${WORK_DIR}/outputs/hard_gen
-    mkdir -p ${OUT_DIR}
-    WORK_DIR=${WORK_DIR}/hard_gen   
+    OUT_DIR="${WORK_DIR}/outputs/hard_gen"
+    mkdir -p "${OUT_DIR}"
+    WORK_DIR="${WORK_DIR}/hard_gen"   
 fi
-cd ${WORK_DIR}
+cd "${WORK_DIR}"
 
 
 if [ ${FLAG_train} -eq 1 ]; then
