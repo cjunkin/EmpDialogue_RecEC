@@ -1,7 +1,7 @@
-echo "Installing dependencies..."
-pip install -r requirements.txt
-
 WORK_DIR=$(cd $(dirname $0); pwd)
+
+echo "Installing dependencies..."
+pip install -r "$WORK_DIR/requirements.txt"
 
 echo "Creating directories..."
 mkdir -p "$WORK_DIR/outputs"
