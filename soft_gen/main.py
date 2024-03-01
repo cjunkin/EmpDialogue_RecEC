@@ -51,7 +51,7 @@ parser.add_argument(
     help="Model checkpoint to load model weights from.")
 parser.add_argument(
     '--emotion-model', type=str, default="/",
-    help="Model checkpoint to load model weights from.")
+    help="Emotion recognition model checkpoint to load model weights from.")
 parser.add_argument(
     '--bert-score-model', type=str, default="/",
     help="model for bert-score")
@@ -398,8 +398,8 @@ def main() -> None:
                 _save_generation("_best")
                 _save_epoch("_best")
             else:
-                _save_generation("_other")
-                _save_epoch("_other")
+                _save_generation(f"_soft_gen_{epoch}")
+                _save_epoch(f"_soft_epoch_{epoch}")
             # _test_epoch(epoch)
 
     if args.do_test:
