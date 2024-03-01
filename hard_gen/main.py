@@ -388,11 +388,11 @@ def main() -> None:
             best_F1 = 0
             if F1 > 0.13 and dist2 > 0.08 and bleu4 > 0.016 and F1 > best_F1:
                 best_F1 = F1
-                _save_generation("_best")
-                _save_epoch("_best")
+                _save_generation("_hard_gen_best")
+                _save_epoch("_hard_best")
             else:
-                _save_generation("_other")
-                _save_epoch("_other")
+                _save_generation("_hard_gen_other")
+                _save_epoch("_hard_other")
 
 
     if args.do_test:

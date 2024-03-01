@@ -75,7 +75,7 @@ if [ ${FLAG_test} -eq 1 ]; then
         --do-test \
         --glove "../${GLOVE}" \
         --emotion-model "../models/emotion/best_emotion.pt" \
-        --checkpoint "${OUT_DIR}/checkpoint_best.pt" \
+        --checkpoint "../models/${MODE}/checkpoint_${MODE}_best.pt" \
         --bert-score-baseline "../${BASELINE}" \
         --bert-score-model ${ROBERTA_DIR} \
         --output-dir "${OUT_DIR}" \
