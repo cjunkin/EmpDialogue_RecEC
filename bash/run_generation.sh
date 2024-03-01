@@ -63,7 +63,7 @@ if [ ${FLAG_train} -eq 1 ]; then
         --do-train \
         --do-eval \
         --glove "../${GLOVE}" \
-        --emotion-model "../outputs/emotion/best_emotion.pt" \
+        --emotion-model "../models/emotion/best_emotion.pt" \
         --bert-score-baseline "../${BASELINE}" \
         --bert-score-model ${ROBERTA_DIR} \
         --output-dir "${OUT_DIR}"
@@ -74,7 +74,7 @@ if [ ${FLAG_test} -eq 1 ]; then
     CUDA_VISIBLE_DEVICES=${GPU} python main.py \
         --do-test \
         --glove "../${GLOVE}" \
-        --emotion-model "../outputs/emotion/best_emotion.pt" \
+        --emotion-model "../models/emotion/best_emotion.pt" \
         --checkpoint "${OUT_DIR}/checkpoint_best.pt" \
         --bert-score-baseline "../${BASELINE}" \
         --bert-score-model ${ROBERTA_DIR} \
