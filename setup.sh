@@ -1,5 +1,5 @@
 echo "Installing dependencies..."
-pip install -r EmpDialogue_RecEC/requirements.txt
+pip install -r requirements.txt
 
 echo "Creating directories..."
 mkdir -p outputs
@@ -14,8 +14,7 @@ test -f resources/roberta-large.tsv || wget -P resources https://raw.githubuserc
 echo "Getting trained emotion recognition model..."
 mkdir -p outputs/emotion
 root_dir=$(realpath ${BASH_SOURCE[0]} | cut -d'/' -f2)
-echo $root_dir
-if [[ "$root_dir" == *"/content"* ]]; then
+if [[ "$root_dir" == "/content" ]]; then
   echo "On Colab"
   cp /content/CS247-Empathy-Mental-Health/best_emotion.pt outputs/emotion/
 else
