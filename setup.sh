@@ -6,6 +6,9 @@ pip install -r "$WORK_DIR/requirements.txt"
 echo "Creating directories..."
 mkdir -p "$WORK_DIR/outputs"
 mkdir -p "$WORK_DIR/resources"
+mkdir -p "$WORK_DIR/models/emotion"
+mkdir -p "$WORK_DIR/models/soft"
+mkdir -p "$WORK_DIR/models/hard"
 
 echo "Downloading GLoVE embeddings..."
 test -f "$WORK_DIR/resources/glove.6B.zip" || wget -P "$WORK_DIR/resources" https://nlp.stanford.edu/data/glove.6B.zip
