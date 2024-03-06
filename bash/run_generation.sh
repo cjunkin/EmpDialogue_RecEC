@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]];do
         shift 2
         ;;
     --test-file)
-        BASELINE=${2}
+        TEST_FILE=${2}
         shift 2
         ;;
     --do_test)
