@@ -1,5 +1,5 @@
 usage() {
-  echo "Usage: ${0} [--glove] [--gpu_id] [--mode] [--roberta] [--baseline] [--test_file] [--do_test] [--do_train]" 1>&2
+  echo "Usage: ${0} [--glove] [--gpu_id] [--mode] [--roberta] [--baseline] [--test_data] [--do_test] [--do_train]" 1>&2
   exit 1 
 }
 
@@ -29,8 +29,8 @@ while [[ $# -gt 0 ]];do
         BASELINE=${2}
         shift 2
         ;;
-    --test_file)
-        TEST_FILE=${2}
+    --test_data)
+        TEST_DATA=${2}
         shift 2
         ;;
     --do_test)
@@ -77,7 +77,7 @@ if [ ${FLAG_test} -eq 1 ]; then
     echo "begin testing"
     CUDA_VISIBLE_DEVICES=${GPU} python main.py \
         --do-test \
-        --test-file "${TEST_FILE}" \
+        --test-data "${TEST_FILE}" \
         --glove "../${GLOVE}" \
         --emotion-model "../models/emotion/best_emotion.pt" \
         --checkpoint "../models/${MODE}/checkpoint_${MODE}_best.pt" \
