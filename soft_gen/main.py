@@ -150,7 +150,8 @@ class ModelWrapper(nn.Module):
 
 
 def main() -> None:
-    """Entry point.
+    """
+    Entry point.
     """
     # Load data
     vocab = tx.data.Vocab(config_data.vocab_file)
