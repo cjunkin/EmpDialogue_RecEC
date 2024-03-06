@@ -1,5 +1,5 @@
 usage() {
-  echo "Usage: ${0} [--glove] [--gpu_id] [--mode] [--roberta] [--baseline] [--do_test] [--do_train] [--test_file]" 1>&2
+  echo "Usage: ${0} [--glove] [--gpu_id] [--mode] [--roberta] [--baseline] [--test_file] [--do_test] [--do_train]" 1>&2
   exit 1 
 }
 
