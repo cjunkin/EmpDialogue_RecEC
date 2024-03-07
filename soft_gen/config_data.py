@@ -33,3 +33,11 @@ test_hparams = {
         'batch_size': 64,
         'shuffle': False,
     }
+
+class CustomHParams:
+    def __init__(self, path):
+        self.params = {
+            'dataset': { 'files': data_root + '/' + path,'vocab_file': vocab_file, "emotion_file": emotion_file},
+            'batch_size': 64,
+            'shuffle': False,
+        }

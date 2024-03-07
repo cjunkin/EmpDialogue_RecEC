@@ -41,7 +41,7 @@ parser.add_argument(
     "--do-test", action="store_true",
     help="Whether to run test on the test set.")
 parser.add_argument(
-    "--output-dir", type=str, default="../outputs/soft_gen",
+    "--output-dir", type=str, default="/outputs/soft_gen",
     help="Path to save the trained model and logs.")
 parser.add_argument(
     "--log-file", type=str, default="exp.log",
@@ -133,7 +133,8 @@ class ModelWrapper(nn.Module):
 
         predictions = self.generate_net(encoder_input=batch.src_text_ids.to(device),
                           emotion_preds=emotion_preds,
-                          emotion_label=batch.emotion_id.to(device),
+                          emotion_label=\
+                            batch.emotion_id.to(device) if getattr(batch, 'emotion_id', None) is not None else None,
                           cause_labels=cause_preds,
                           user_ids=batch.user_ids.to(device))
 
@@ -162,10 +163,11 @@ def main() -> None:
     logger.info(f"EmotionVocab Size: {emotion_vocab.size}")
     train_data = data_utils.TrainData(config_data.train_hparams, device=device)
     valid_data = data_utils.TrainData(config_data.valid_hparams, device=device)
-    if args.test_data == "default":
-        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
+    if args.test_data:
+        custom = config_data.CustomHParams(args.test_data)
+        test_data = data_utils.CustomData(custom.params, device=device)
     else:
-        test_data = data_utils.TrainData(args.test_data, device=device)
+        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
     logger.info(f"Training data size: {len(train_data)}")
     logger.info(f"Valid data size: {len(valid_data)}")
     logger.info(f"Test data size: {len(test_data)}")

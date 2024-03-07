@@ -77,7 +77,7 @@ if [ ${FLAG_test} -eq 1 ]; then
     echo "begin testing"
     CUDA_VISIBLE_DEVICES=${GPU} python main.py \
         --do-test \
-        --test-data "${TEST_FILE}" \
+        --test-data "${TEST_DATA}" \
         --glove "../${GLOVE}" \
         --emotion-model "../models/emotion/best_emotion.pt" \
         --checkpoint "../models/${MODE}/checkpoint_${MODE}_best.pt" \
