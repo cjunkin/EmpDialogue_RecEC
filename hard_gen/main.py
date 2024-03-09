@@ -61,6 +61,9 @@ parser.add_argument(
 parser.add_argument(
     '--glove', type=str, default="/",
     help="glove embedding")
+parser.add_argument(
+    '--test-data', type=str, default="default",
+    help="model test data")
 
 args = parser.parse_args()
 
@@ -101,17 +104,17 @@ class ModelWrapper(nn.Module):
 
     def forward(self,  # type: ignore
                 batch: tx.data.Batch) -> Dict[str, torch.Tensor]:
-        emotion_return_dict, emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids,
-                                                                           emotion_label=batch.emotion_id,
-                                                                           cause_labels=batch.cause_ids)
+        emotion_return_dict, emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids.to(device),
+                                                                           emotion_label=batch.emotion_id.to(device),
+                                                                           cause_labels=batch.cause_ids.to(device))
 
-        return_dict = self.generate_net(encoder_input=batch.src_text_ids,
+        return_dict = self.generate_net(encoder_input=batch.src_text_ids.to(device),
                           emotion_preds=emotion_preds,
-                          decoder_input=batch.tgt_text_ids[:,:-1].contiguous(),
-                          labels=batch.tgt_text_ids[:,1:].contiguous(),
-                          emotion_label=batch.emotion_id,
+                          decoder_input=batch.tgt_text_ids[:,:-1].contiguous().to(device),
+                          labels=batch.tgt_text_ids[:,1:].contiguous().to(device),
+                          emotion_label=batch.emotion_id.to(device),
                           cause_labels=cause_preds,
-                          user_ids=batch.user_ids)
+                          user_ids=batch.user_ids.to(device))
 
 
         return_dict.update(emotion_return_dict)
@@ -122,13 +125,13 @@ class ModelWrapper(nn.Module):
         return return_dict, emotion_preds
 
     def predict(self, batch: tx.data.Batch) -> Dict[str, torch.Tensor]:
-        emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids)
+        emotion_preds, cause_preds = self.emotion_net(encoder_input=batch.src_text_ids.to(device))
 
-        predictions = self.generate_net(encoder_input=batch.src_text_ids,
+        predictions = self.generate_net(encoder_input=batch.src_text_ids.to(device),
                           emotion_preds=emotion_preds,
-                          emotion_label=batch.emotion_id,
+                          emotion_label=batch.emotion_id.to(device) if getattr(batch, 'emotion_id', None) is not None else None,
                           cause_labels=cause_preds,
-                          user_ids=batch.user_ids)
+                          user_ids=batch.user_ids.to(device))
 
         decoded_ids = predictions[0].sample_id
         hypos = self.generate_net.vocab.map_ids_to_tokens_py(decoded_ids.cpu()).tolist()
@@ -155,7 +158,11 @@ def main() -> None:
     logger.info(f"EmotionVocab Size: {emotion_vocab.size}")
     train_data = data_utils.TrainData(config_data.train_hparams,device=device)
     valid_data = data_utils.TrainData(config_data.valid_hparams,device=device)
-    test_data = data_utils.TrainData(config_data.test_hparams,device=device)
+    if args.test_data:
+        custom = config_data.CustomHParams(args.test_data)
+        test_data = data_utils.CustomData(custom.params, device=device)
+    else:
+        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
     logger.info(f"Training data size: {len(train_data)}")
     logger.info(f"Valid data size: {len(valid_data)}")
     logger.info(f"Test data size: {len(test_data)}")

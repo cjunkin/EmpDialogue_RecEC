@@ -2,6 +2,8 @@ from typing import List, Optional, Tuple, Iterator
 
 import numpy as np
 import torch
+import pandas as pd
+import csv
 
 import texar.torch as tx
 from texar.torch.hyperparams import HParams
@@ -180,7 +182,92 @@ class TrainData(tx.data.DatasetBase[Example, Example]):
         r"""The vocabulary, an instance of :class:`~texar.torch.data.Vocab`.
         """
         return self._vocab
+    
+class CustomData(tx.data.DatasetBase[Example, Example]):
+    def __init__(self, hparams=None,
+                 device: Optional[torch.device] = None):
+        self._hparams = HParams(hparams, self.default_hparams())
+        data_source = self._load_csv(self._hparams.dataset.files)
+        
+        self._vocab = tx.data.Vocab(self._hparams.dataset.vocab_file)
+        self._emotion_vocab = EmotionVocab(self._hparams.dataset.emotion_file)
+        
+        super().__init__(data_source, hparams, device=device)
 
+    @staticmethod
+    def default_hparams():
+        return {
+            **tx.data.DatasetBase.default_hparams(),
+            'dataset': { 'files': 'data.txt',
+                        'compression_type':None, 
+                        'vocab_file':None,
+                        'emotion_file':None},
+        }
+
+    def _load_csv(self, file_path):
+        # Read the CSV and create a data source
+        df = pd.read_csv(file_path)
+        examples = []
+        for _, row in df.iterrows():
+            seeker_post = row['seeker_post']
+            response_post = row['response_post']
+            # Store the raw text
+            examples.append({"utters": [seeker_post, response_post], "emotion": "unknown", "emotion_cause": []})
+        return examples
+    
+    def process(self, raw_example):
+        utters = raw_example['utters']
+        src = []
+        user_ids = [0]  # Initializing with a default value for compatibility
+        
+        # Preprocess utterances with special tokens
+        for idx, u in enumerate(utters):
+            # Simple alternating scheme for user IDs if needed
+            user_ids += [(idx % 2) + 1] * (len(u.split()) + 1)
+            src.append(' '.join(u.split() + ['<SEP>']))
+            
+        src = ' '.join(['<CLS>'] + src[:-1])  # Exclude the last <SEP> token
+        tgt = ' '.join(['<BOS>'] + utters[-1].split() + ['<EOS>'])
+        
+        return {
+            "src_text": src,
+            "src_ids": self._vocab.map_tokens_to_ids_py(src.split()),
+            "tgt_text": tgt,
+            "tgt_ids": self._vocab.map_tokens_to_ids_py(tgt.split()),
+            # Emotion and cause information might be included if available
+            "emotion_text": "unknown",  # Placeholder
+            "emotion_id": [0],  # Placeholder; assuming 'unknown' maps to 0
+            "cause_ids": np.array([0.0]),  # Placeholder
+            "user_ids": np.array(user_ids[:-1])  # Exclude the last user ID addition for the <SEP> token
+        }
+    
+    def collate(self, examples: List[Example]) -> tx.data.Batch:
+        src_texts = [ex["src_text"] for ex in examples]
+        src_ids, src_lengths = tx.data.padded_batch(
+            [ex["src_ids"] for ex in examples], pad_value=self._vocab.pad_token_id)
+        tgt_texts = [ex["tgt_text"] for ex in examples]
+        tgt_ids, tgt_lengths = tx.data.padded_batch(
+            [ex["tgt_ids"] for ex in examples], pad_value=self._vocab.pad_token_id)
+
+        user_ids, _ = tx.data.padded_batch(
+            [ex["user_ids"] for ex in examples], pad_value=0)
+        # Assuming placeholders for emotion and cause, these would be handled here if real data was available
+        # emotion_ids = torch.tensor([ex["emotion_id"] for ex in examples])
+
+        return tx.data.Batch(
+            batch_size=len(examples),
+            src_text=src_texts,
+            src_text_ids=torch.LongTensor(src_ids),
+            src_lengths=torch.LongTensor(src_lengths),
+            tgt_text=tgt_texts,
+            tgt_text_ids=torch.LongTensor(tgt_ids),
+            tgt_lengths=torch.LongTensor(tgt_lengths),
+            emotion_text=None,
+            emotion_id=None,
+            cause_ids=None,
+            user_ids=torch.LongTensor(user_ids),
+            # Additional placeholders if needed
+        )
 
 class EvalData(tx.data.DatasetBase[Example, Example]):
 
