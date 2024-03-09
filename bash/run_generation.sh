@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]];do
         shift 2
         ;;
     --test_data)
-        TEST_DATA=${2}
+        TEST_DATA=${2:-"default"}
         shift 2
         ;;
     --do_test)
