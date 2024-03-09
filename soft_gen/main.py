@@ -163,11 +163,11 @@ def main() -> None:
     logger.info(f"EmotionVocab Size: {emotion_vocab.size}")
     train_data = data_utils.TrainData(config_data.train_hparams, device=device)
     valid_data = data_utils.TrainData(config_data.valid_hparams, device=device)
-    if args.test_data != 'default':
+    if args.test_data == 'default':
+        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
+    else:
         custom = config_data.CustomHParams(args.test_data)
         test_data = data_utils.CustomData(custom.params, device=device)
-    else:
-        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
     logger.info(f"Training data size: {len(train_data)}")
     logger.info(f"Valid data size: {len(valid_data)}")
     logger.info(f"Test data size: {len(test_data)}")
