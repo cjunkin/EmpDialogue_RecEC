@@ -161,13 +161,13 @@ def main() -> None:
     emotion_vocab = EmotionVocab(config_data.emotion_file)
     logger.info(f"Vocab size: {vocab.size}")
     logger.info(f"EmotionVocab Size: {emotion_vocab.size}")
-    train_data = data_utils.TrainData(config_data.train_hparams, device=device)
-    valid_data = data_utils.TrainData(config_data.valid_hparams, device=device)
+    train_data = data_utils.TrainData(config_data.train_hparams)
+    valid_data = data_utils.TrainData(config_data.valid_hparams)
     if args.test_data == 'default':
-        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
+        test_data = data_utils.TrainData(config_data.test_hparams)
     else:
         custom = config_data.CustomHParams(args.test_data)
-        test_data = data_utils.CustomData(custom.params, device=device)
+        test_data = data_utils.CustomData(custom.params)
     logger.info(f"Training data size: {len(train_data)}")
     logger.info(f"Valid data size: {len(valid_data)}")
     logger.info(f"Test data size: {len(test_data)}")
@@ -225,6 +225,7 @@ def main() -> None:
         all_emotion_targets = []
         best_test_acc = 0.0
         for batch in train_data_iterator:
+            batch.to(device)
             optim.zero_grad()
             return_dict, emotion_preds = model(batch)
             all_emotion_preds += torch.flatten(emotion_preds).tolist()
@@ -252,6 +253,7 @@ def main() -> None:
         model.eval()
         avg_rec = tx.utils.AverageRecorder()
         for batch in valid_data_iterator:
+            batch.to(device)
             return_dict, emotion_preds = model(batch)
             avg_rec.add(return_dict)
         logger.info(f"Eval | {avg_rec.to_str(precision=4, delimiter=' | ')}")
@@ -299,6 +301,7 @@ def main() -> None:
         all_hyps = []
         all_refs = []
         for batch in tqdm(test_data_iterator):
+            batch.to(device)
             return_dict = model.predict(batch)
             for idx,h in enumerate(return_dict['hypos']):
                 # print(f"S-{sample_id}\t{batch.src_text[idx]}")
@@ -336,6 +339,7 @@ def main() -> None:
         all_bleu4_2 = []
 
         for batch in tqdm(test_data_iterator):
+            batch.to(device)
             return_dict = model.predict(batch)
             return_dict2 = model2.predict(batch)
             for idx,h in enumerate(return_dict['hypos']):
@@ -382,6 +386,7 @@ def main() -> None:
         all_hyps, all_refs = [], []
         sample_id = 0
         for batch in test_data_iterator:
+            batch.to(device )
             return_dict = model.predict(batch)
             for idx,h in enumerate(return_dict['hypos']):
                 logger.info(f"S-{sample_id}\t{batch.src_text[idx]}")

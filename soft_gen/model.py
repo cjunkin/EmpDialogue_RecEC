@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from modules import TransformerDecoder, TransformerEncoder
 from texar.torch.data import embedding
 import numpy as np
+import transformers
 
 class EmotionNet(nn.Module):
     def __init__(self, model_config, data_config, vocab: tx.data.Vocab, emotion_vocab: tx.data.Vocab):
@@ -91,8 +92,6 @@ class EmotionNet(nn.Module):
 
 
 class Transformer(nn.Module):
-
-
     def __init__(self, model_config, data_config, vocab: tx.data.Vocab, emotion_vocab: tx.data.Vocab, use_mmoe=False):
         super().__init__()
 
@@ -199,9 +198,21 @@ class Transformer(nn.Module):
             start_tokens = encoder_input.new_full(
                 (batch_size,), self.vocab.bos_token_id)
 
-            helper = tx.modules.TopKSampleEmbeddingHelper(
-            start_tokens=start_tokens, end_token=self.vocab.eos_token_id,
-            top_k=3, softmax_temperature=0.6)
+            # [TOP K]
+            # helper = tx.modules.TopKSampleEmbeddingHelper(
+            #     start_tokens=start_tokens, 
+            #     end_token=self.vocab.eos_token_id,
+            #     top_k=5,  # default: 3
+            #     softmax_temperature=0.6
+            # )
+
+            # [TOP P]
+            helper = tx.modules.TopPSampleEmbeddingHelper(
+                start_tokens=start_tokens, 
+                end_token=self.vocab.eos_token_id,
+                p=0.9,
+                softmax_temperature=0.4
+            )
 
             predictions = self.decoder(
                 memory=encoder_output, 
@@ -214,6 +225,7 @@ class Transformer(nn.Module):
                 helper=helper,
                 # decoding_strategy="infer_greedy",
             )
+
             # Uses the best sample by beam search
             return predictions
 

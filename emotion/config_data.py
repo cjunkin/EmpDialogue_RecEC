@@ -3,7 +3,7 @@ from pathlib import Path
 max_batch_tokens = 4096*2
 test_batch_size = 32
 
-max_train_epoch = 25
+max_train_epoch = 50
 display_steps = 100
 eval_steps = 100
 

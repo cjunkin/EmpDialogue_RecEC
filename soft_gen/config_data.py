@@ -3,11 +3,11 @@ from pathlib import Path
 max_batch_tokens = 4096
 test_batch_size = 32
 
-max_train_epoch = 80
+max_train_epoch = 100
 display_steps = 100
 eval_steps = 100
 
-max_decoding_length = 1024
+max_decoding_length = 2048  # default: 1024
 data_root = '../Data'
 
 vocab_file = './vocab.txt'

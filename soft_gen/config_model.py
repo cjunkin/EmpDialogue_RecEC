@@ -4,11 +4,11 @@ import copy
 
 import texar.torch as tx
 
-random_seed = 1024 # 123
+random_seed = 2048 # default: 1024
 
-beam_width = 5
+beam_width = 5  # default: 5
 
-length_penalty = 0.6
+length_penalty = 1.0  # default: 0.6
 hidden_dim = 300
 word_dim = 300
 num_experts = 4
