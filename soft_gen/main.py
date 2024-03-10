@@ -161,13 +161,13 @@ def main() -> None:
     emotion_vocab = EmotionVocab(config_data.emotion_file)
     logger.info(f"Vocab size: {vocab.size}")
     logger.info(f"EmotionVocab Size: {emotion_vocab.size}")
-    train_data = data_utils.TrainData(config_data.train_hparams, device=device)
-    valid_data = data_utils.TrainData(config_data.valid_hparams, device=device)
+    train_data = data_utils.TrainData(config_data.train_hparams)
+    valid_data = data_utils.TrainData(config_data.valid_hparams)
     if args.test_data == 'default':
-        test_data = data_utils.TrainData(config_data.test_hparams, device=device)
+        test_data = data_utils.TrainData(config_data.test_hparams)
     else:
         custom = config_data.CustomHParams(args.test_data)
-        test_data = data_utils.CustomData(custom.params, device=device)
+        test_data = data_utils.CustomData(custom.params)
     logger.info(f"Training data size: {len(train_data)}")
     logger.info(f"Valid data size: {len(valid_data)}")
     logger.info(f"Test data size: {len(test_data)}")
@@ -228,7 +228,7 @@ def main() -> None:
             optim.zero_grad()
             return_dict, emotion_preds = model(batch)
             all_emotion_preds += torch.flatten(emotion_preds).tolist()
-            all_emotion_targets += torch.flatten(batch.emotion_id).tolist()
+            all_emotion_targets += torch.flatten(batch.emotion_id.to(device) if getattr(batch, 'emotion_id', None) is not None else None).tolist()
             loss = return_dict['loss']
             loss.backward()
             optim.step()
@@ -262,7 +262,7 @@ def main() -> None:
         for batch in test_data_iterator:
             return_dict, emotion_preds = model(batch)
             all_emotion_preds += torch.flatten(emotion_preds).tolist()
-            all_emotion_targets += torch.flatten(batch.emotion_id).tolist()
+            all_emotion_targets += torch.flatten(batch.emotion_id.to(device) if getattr(batch, 'emotion_id', None) is not None else None).tolist()
             
             avg_rec.add(return_dict)
         
