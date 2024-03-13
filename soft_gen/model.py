@@ -211,7 +211,7 @@ class Transformer(nn.Module):
                 start_tokens=start_tokens, 
                 end_token=self.vocab.eos_token_id,
                 p=0.9,
-                softmax_temperature=0.4
+                softmax_temperature=0.3
             )
 
             predictions = self.decoder(
