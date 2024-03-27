@@ -1,6 +1,5 @@
-## Source code for our paper "Improving Empathetic Response Generation by Recognizing Emotion Cause in Conversations"
-
-this repository is maintained by both [Jun Gao](https://github.com/gaojun4ever/) and [Yuhan Liu](https://github.com/A-Rain) 
+## Empathetic Dialogue Generator with Emotional Cause
+Source code for the research paper we based our work on: "Improving Empathetic Response Generation by Recognizing Emotion Cause in Conversations" maintained by [Jun Gao](https://github.com/gaojun4ever/) and [Yuhan Liu](https://github.com/A-Rain) 
 
 ### Environment Requirment
 - pytorch >= 1.4.0
